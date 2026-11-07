@@ -1,0 +1,496 @@
+{
+  "name": "WF01",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "737fcada-c195-4fd1-9398-61683663dc1a",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "01_Control",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "440a7b0e-193c-47e1-b8a2-207f0fe73180",
+      "name": "Read 01_Control",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -256,
+        400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.trigger_run }}",
+              "rightValue": "YES",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c7e5d6c2-d50d-44b1-b2f6-ec9cedabee36",
+      "name": "Filter Trigger YES",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Untitled spreadsheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "02_Presets",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "de6a2e9b-1946-41c3-a6d1-074b8caa5f8e",
+      "name": "Read 02_Presets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        192,
+        288
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Match control row with preset and normalize parameters\nconst control = $('Filter Trigger YES').first().json;\nconst presets = $items('Read 02_Presets').map(i => i.json);\n\nif (!control.industry_category || !control.country || !control.quantity) {\n  throw new Error('Validation Error: Missing industry_category, country, or quantity.');\n}\n\n// Match preset by category name\nconst matchedPreset = presets.find(p => \n  p.category_name.trim().toLowerCase() === control.industry_category.trim().toLowerCase()\n);\n\nif (!matchedPreset) {\n  throw new Error(`Preset Error: No preset found for category \"${control.industry_category}\".`);\n}\n\nconst requestedQty = parseInt(control.quantity, 10);\nconst targetQuantity = Math.min(isNaN(requestedQty) ? 25 : requestedQty, 100);\n\n// Compute buffer: 2.5x to account for dedup and low confidence drop-offs\nconst discoveryTargetPool = Math.ceil(targetQuantity * 2.5);\n\n// Generate Deterministic Campaign ID\nconst countryCode = control.country.trim().toUpperCase().slice(0, 3);\nconst cleanCat = control.industry_category.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 12);\nconst ts = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 12);\nconst campaignId = `CMP_${countryCode}_${cleanCat}_${ts}`;\n\n// Safe JSON parsing helper\nconst safeParse = (str) => {\n  try { return typeof str === 'string' ? JSON.parse(str) : str; } catch(e) { return str; }\n};\n\nreturn [{\n  json: {\n    campaign_id: campaignId,\n    campaign_name: control.campaign_name || `${control.industry_category} - ${control.country}`,\n    industry_category: control.industry_category,\n    country: control.country,\n    state_region: control.state_region || null,\n    target_quantity: targetQuantity,\n    discovery_target_pool: discoveryTargetPool,\n    employee_range: control.employee_range || safeParse(matchedPreset.employee_ranges)[0],\n    titles: control.titles ? control.titles.split(',').map(t => t.trim()) : safeParse(matchedPreset.default_titles),\n    research_depth: control.research_depth || 'Standard',\n    marketing_intent_mode: control.marketing_intent_mode || 'Growth-intent priority',\n    send_mode: control.send_mode || 'Approval + send',\n    preset_id: matchedPreset.preset_id,\n    apollo_industry_tags: safeParse(matchedPreset.apollo_industry_tags),\n    service_library: safeParse(matchedPreset.service_library),\n    pain_point_library: safeParse(matchedPreset.pain_point_library),\n    scoring_weights: safeParse(matchedPreset.scoring_weights),\n    exclusions: safeParse(matchedPreset.exclusions),\n    status: 'QUEUED',\n    created_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "a5c6f740-db43-4f81-85b1-a0851f120f5a",
+      "name": "Normalize & Match Preset",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "03_Campaigns",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "target_quantity",
+              "displayName": "target_quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discovered_count",
+              "displayName": "discovered_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unique_count",
+              "displayName": "unique_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "qualified_count",
+              "displayName": "qualified_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sent_count",
+              "displayName": "sent_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "industry_category",
+              "displayName": "industry_category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state_region",
+              "displayName": "state_region",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discovery_target_pool",
+              "displayName": "discovery_target_pool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "employee_range",
+              "displayName": "employee_range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titles",
+              "displayName": "titles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "research_depth",
+              "displayName": "research_depth",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "marketing_intent_mode",
+              "displayName": "marketing_intent_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "send_mode",
+              "displayName": "send_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "preset_id",
+              "displayName": "preset_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "apollo_industry_tags",
+              "displayName": "apollo_industry_tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "service_library",
+              "displayName": "service_library",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pain_point_library",
+              "displayName": "pain_point_library",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "scoring_weights",
+              "displayName": "scoring_weights",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "exclusions",
+              "displayName": "exclusions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "43412610-f7cc-4fb8-9ef5-b1ac9242a8ef",
+      "name": "Write 03_Campaigns",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        640,
+        288
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 01_Control",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read 01_Control": {
+      "main": [
+        [
+          {
+            "node": "Filter Trigger YES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Trigger YES": {
+      "main": [
+        [
+          {
+            "node": "Read 02_Presets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read 02_Presets": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Match Preset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Match Preset": {
+      "main": [
+        [
+          {
+            "node": "Write 03_Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9ad8828a-9659-4112-b569-27e658e1dc3b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "1MiuDjaZSzfR9nqX",
+  "tags": []
+}

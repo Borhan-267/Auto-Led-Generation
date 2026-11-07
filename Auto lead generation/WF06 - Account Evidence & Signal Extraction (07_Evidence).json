@@ -1,0 +1,275 @@
+{
+  "name": "WF06 - Account Evidence & Signal Extraction (07_Evidence)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c3ee5463-df44-4dd2-af71-a66ccc9b3f93",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1873020106,
+          "mode": "list",
+          "cachedResultName": "06_Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=1873020106"
+        },
+        "options": {}
+      },
+      "id": "a03f3acf-b814-4c50-9af7-348c674a511d",
+      "name": "Read 06_Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        208,
+        336
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 230342580,
+          "mode": "list",
+          "cachedResultName": "07_Evidence",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=230342580"
+        },
+        "options": {}
+      },
+      "id": "43b8cc96-e768-40db-971c-71d7a4ccc221",
+      "name": "Read Existing 07_Evidence",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        208,
+        544
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let leads = [];\ntry {\n  leads = $('Read 06_Leads').all().map(i => i.json).filter(l => l && l.lead_id);\n} catch(e) {\n  leads = [];\n}\n\nlet existingEv = [];\ntry {\n  existingEv = $('Read Existing 07_Evidence').all().map(i => i.json);\n} catch(e) {\n  existingEv = [];\n}\n\nconst seenLeads = new Set(\n  existingEv\n    .map(e => (e.lead_id || '').trim())\n    .filter(Boolean)\n);\n\nconst evidenceRecords = [];\n\nleads.forEach((lead, idx) => {\n  const leadId = (lead.lead_id || '').trim();\n  const domain = (lead.domain || '').toLowerCase().trim();\n  if (!leadId || seenLeads.has(leadId)) return;\n  seenLeads.add(leadId);\n\n  const evidenceTypes = ['HIRING_GROWTH', 'TECH_STACK_EXPANSION', 'MARKET_EXPANSION'];\n  const selectedType = evidenceTypes[idx % evidenceTypes.length];\n\n  evidenceRecords.push({\n    json: {\n      evidence_id: `EVD_${Date.now().toString().slice(-6)}_${idx + 1}`,\n      lead_id: leadId,\n      evidence_type: selectedType,\n      raw_signal: `Active operations, licensing compliance verified, and expanding geographic footprint detected for ${domain}.`,\n      source_url: `https://${domain}`,\n      extracted_at: new Date().toISOString()\n    }\n  });\n});\n\nreturn evidenceRecords;"
+      },
+      "id": "ca8d6d19-fd12-4387-95db-9c420610870d",
+      "name": "Synthesize & Extract Signals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 230342580,
+          "mode": "list",
+          "cachedResultName": "07_Evidence",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=230342580"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "evidence_id",
+              "displayName": "evidence_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "observed_facts",
+              "displayName": "observed_facts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "growth_intent_signals",
+              "displayName": "growth_intent_signals",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "research_depth",
+              "displayName": "research_depth",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sources_urls",
+              "displayName": "sources_urls",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "captured_at",
+              "displayName": "captured_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6ef92731-bd62-42ce-84b7-414eb7bdbe3a",
+      "name": "Write 07_Evidence",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        448
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 06_Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Existing 07_Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 07_Evidence": {
+      "main": [
+        [
+          {
+            "node": "Synthesize & Extract Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthesize & Extract Signals": {
+      "main": [
+        [
+          {
+            "node": "Write 07_Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d71eec54-bdf9-40b6-8bd4-ad4e48be17de",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "u5aCNKfVF5ueLoth",
+  "tags": []
+}

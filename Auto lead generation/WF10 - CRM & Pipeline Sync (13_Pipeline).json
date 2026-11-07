@@ -1,0 +1,304 @@
+{
+  "name": "WF10 - CRM & Pipeline Sync (13_Pipeline)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0d97a5f7-3ae0-44f1-bb6b-f8971c6b2414",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 122929285,
+          "mode": "list",
+          "cachedResultName": "10_Email_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=122929285"
+        },
+        "options": {}
+      },
+      "id": "8f5334a5-eb00-44cd-8822-2408510528bc",
+      "name": "Read 10_Email_Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        -176
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 147377236,
+          "mode": "list",
+          "cachedResultName": "09_Approval",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=147377236"
+        },
+        "options": {}
+      },
+      "id": "42aa9069-04c4-46ac-8897-793f6344df21",
+      "name": "Read 09_Approval",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2021239117,
+          "mode": "list",
+          "cachedResultName": "13_Pipeline",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=2021239117"
+        },
+        "options": {}
+      },
+      "id": "02a84c2c-dcea-4895-a40b-9ade14c715f3",
+      "name": "Read Existing 13_Pipeline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -352,
+        192
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let logs = [];\ntry {\n  logs = $('Read 10_Email_Log').all().map(i => i.json).filter(l => l && l.lead_id);\n} catch(e) { logs = []; }\n\nlet approvals = [];\ntry {\n  approvals = $('Read 09_Approval').all().map(i => i.json);\n} catch(e) { approvals = []; }\n\nlet existingPipeline = [];\ntry {\n  existingPipeline = $('Read Existing 13_Pipeline').all().map(i => i.json);\n} catch(e) { existingPipeline = []; }\n\nconst approvalMap = new Map();\napprovals.forEach(a => {\n  if (a.lead_id) approvalMap.set(a.lead_id.trim(), a);\n});\n\nconst seenLeads = new Set(\n  existingPipeline\n    .map(p => (p.lead_id || '').trim())\n    .filter(Boolean)\n);\n\nconst pipelineDeals = [];\n\nlogs.forEach((log, idx) => {\n  const leadId = (log.lead_id || '').trim();\n  if (!leadId || seenLeads.has(leadId)) return;\n  seenLeads.add(leadId);\n\n  const approvalData = approvalMap.get(leadId) || {};\n  const compName = approvalData.company_name || 'Commercial Operator';\n  const contactName = approvalData.contact_name || 'Business Owner';\n\n  pipelineDeals.push({\n    json: {\n      deal_id: `DEAL_${Date.now().toString().slice(-6)}_${idx + 1}`,\n      lead_id: leadId,\n      company_name: compName,\n      contact_name: contactName,\n      stage: 'OUTREACH_SENT',\n      expected_value: '£2,500',\n      next_action: 'Follow-up Email (Day 3)',\n      last_updated: new Date().toISOString()\n    }\n  });\n});\n\nreturn pipelineDeals;"
+      },
+      "id": "5261b723-8dbe-47b4-8885-409c37c669bf",
+      "name": "Map & Track Deals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2021239117,
+          "mode": "list",
+          "cachedResultName": "13_Pipeline",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=2021239117"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stage",
+              "displayName": "stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expected_value",
+              "displayName": "expected_value",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_updated",
+              "displayName": "last_updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "887e6816-bec7-4cf4-b034-acaa2d0932ed",
+      "name": "Write 13_Pipeline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        160,
+        -32
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 10_Email_Log",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 09_Approval",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Existing 13_Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 13_Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Map & Track Deals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map & Track Deals": {
+      "main": [
+        [
+          {
+            "node": "Write 13_Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "b28dc9f3-ef30-495c-9ea3-bbdf3bc43ced",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "5uN7tvaJ3V2Rj45L",
+  "tags": []
+}

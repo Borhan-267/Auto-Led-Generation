@@ -1,0 +1,614 @@
+{
+  "name": "Master Orchestrator - Automated Outreach Pipeline",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "627de15c-17d1-4745-a576-0af5c18eef44",
+      "name": "Run Master Orchestrator",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 102486092,
+          "mode": "list",
+          "cachedResultName": "03_Campaigns",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=102486092"
+        },
+        "options": {}
+      },
+      "id": "c863a91a-a5a2-47b9-ada7-e2682ed47ea6",
+      "name": "Read Queued Campaigns",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -784,
+        464
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "check-status",
+              "leftValue": "={{ $json.status || $json.campaign_status }}",
+              "rightValue": "QUEUED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "19e46dbc-dd55-453c-b196-c0759a8ae2a0",
+      "name": "Filter QUEUED Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "FEat7CrTidKyt789"
+        },
+        "options": {}
+      },
+      "id": "b5f32ca7-5fb3-40f7-ba32-651143698d71",
+      "name": "Trigger WF04 Contacts",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        -336,
+        352
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "BqEMLjvfLraiVT2I",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/BqEMLjvfLraiVT2I"
+        },
+        "options": {}
+      },
+      "id": "626af4f2-2d84-40e4-acf1-524da3aec9ea",
+      "name": "Trigger WF05 Leads",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        -112,
+        352
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "u5aCNKfVF5ueLoth",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/u5aCNKfVF5ueLoth"
+        },
+        "options": {}
+      },
+      "id": "384ea8a7-8b5c-4523-a498-a7697f0a3f69",
+      "name": "Trigger WF06 Evidence",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        352
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Lo9mEKk5p8EepENq",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/Lo9mEKk5p8EepENq"
+        },
+        "options": {}
+      },
+      "id": "3d160a19-5831-4ed7-a8a4-76f36557dd5c",
+      "name": "Trigger WF07 AI Profiles",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        352
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "N0LFPwqleTuvomep",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/N0LFPwqleTuvomep"
+        },
+        "options": {}
+      },
+      "id": "c127af92-139f-4fbe-96bc-55bd7062e1c9",
+      "name": "Trigger WF08 Approvals Queue",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        544,
+        352
+      ],
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 102486092,
+          "mode": "list",
+          "cachedResultName": "03_Campaigns",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=102486092"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "campaign_id": "={{ $('Read Queued Campaigns').first().json.campaign_id }}",
+            "status": "PROCESSED"
+          },
+          "matchingColumns": [
+            "campaign_id"
+          ],
+          "schema": [
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "country",
+              "displayName": "country",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "target_quantity",
+              "displayName": "target_quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discovered_count",
+              "displayName": "discovered_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "unique_count",
+              "displayName": "unique_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "qualified_count",
+              "displayName": "qualified_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sent_count",
+              "displayName": "sent_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "campaign_name",
+              "displayName": "campaign_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "industry_category",
+              "displayName": "industry_category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "state_region",
+              "displayName": "state_region",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "discovery_target_pool",
+              "displayName": "discovery_target_pool",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "employee_range",
+              "displayName": "employee_range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "titles",
+              "displayName": "titles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "research_depth",
+              "displayName": "research_depth",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "marketing_intent_mode",
+              "displayName": "marketing_intent_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "send_mode",
+              "displayName": "send_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "preset_id",
+              "displayName": "preset_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "apollo_industry_tags",
+              "displayName": "apollo_industry_tags",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "service_library",
+              "displayName": "service_library",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "pain_point_library",
+              "displayName": "pain_point_library",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "scoring_weights",
+              "displayName": "scoring_weights",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "exclusions",
+              "displayName": "exclusions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "712cd7c9-cf68-4b5a-8ca0-baf236524beb",
+      "name": "Mark Campaign PROCESSED",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        768,
+        352
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run Master Orchestrator": {
+      "main": [
+        [
+          {
+            "node": "Read Queued Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Queued Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Filter QUEUED Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter QUEUED Status": {
+      "main": [
+        [
+          {
+            "node": "Trigger WF04 Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger WF04 Contacts": {
+      "main": [
+        [
+          {
+            "node": "Trigger WF05 Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger WF05 Leads": {
+      "main": [
+        [
+          {
+            "node": "Trigger WF06 Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger WF06 Evidence": {
+      "main": [
+        [
+          {
+            "node": "Trigger WF07 AI Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger WF07 AI Profiles": {
+      "main": [
+        [
+          {
+            "node": "Trigger WF08 Approvals Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger WF08 Approvals Queue": {
+      "main": [
+        [
+          {
+            "node": "Mark Campaign PROCESSED",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "82885b9d-6b97-4da8-bce4-42514aff9ead",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "MOErGEzkGVCvkKtr",
+  "tags": []
+}

@@ -1,0 +1,308 @@
+{
+  "name": "WF05 - Lead Qualification & Scoring (06_Leads)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "14c407e9-faf4-466c-8487-1d84b2d41867",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "03_Campaigns",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "18e92289-30aa-453b-a2f9-49f7ef321a8a",
+      "name": "Read 03_Campaigns",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        32,
+        112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "05_Contacts",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "9cc02b79-dcd0-450b-861e-23582bccd0b2",
+      "name": "Read 05_Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        256,
+        112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "06_Leads",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "909fcadd-3086-4e8c-9f2f-037ca451a864",
+      "name": "Read Existing 06_Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        112
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let campaigns = [];\ntry {\n  campaigns = $('Read 03_Campaigns').all().map(i => i.json).filter(c => c && c.campaign_id);\n} catch(e) {\n  campaigns = [];\n}\nconst activeCampaignId = campaigns.length ? campaigns[campaigns.length - 1].campaign_id : 'CMP_DEFAULT_001';\n\nlet contacts = [];\ntry {\n  contacts = $('Read 05_Contacts').all().map(i => i.json).filter(c => c && c.normalized_email);\n} catch(e) {\n  contacts = [];\n}\n\nlet existingLeads = [];\ntry {\n  existingLeads = $('Read Existing 06_Leads').all().map(i => i.json);\n} catch(e) {\n  existingLeads = [];\n}\n\nconst seenEmails = new Set(\n  existingLeads\n    .map(r => (r.normalized_email || '').toLowerCase().trim())\n    .filter(Boolean)\n);\n\nconst qualifiedLeads = [];\n\ncontacts.forEach((contact, idx) => {\n  const email = (contact.normalized_email || '').toLowerCase().trim();\n  if (!email || seenEmails.has(email)) return;\n  seenEmails.add(email);\n\n  const title = (contact.job_title || '').toLowerCase();\n  const seniority = (contact.seniority || '').toLowerCase();\n  const emailStatus = (contact.email_status || '').toLowerCase();\n\n  // Scoring Algorithm\n  let score = 50;\n\n  // Role weighting\n  if (title.includes('founder') || title.includes('owner') || seniority.includes('owner')) {\n    score += 30;\n  } else if (title.includes('director') || title.includes('managing') || seniority.includes('c-level')) {\n    score += 25;\n  } else if (title.includes('lead') || title.includes('head') || title.includes('manager')) {\n    score += 15;\n  }\n\n  // Email verification weighting\n  if (emailStatus === 'verified') {\n    score += 15;\n  } else if (emailStatus === 'catch_all') {\n    score += 5;\n  }\n\n  // Priority Classification\n  let priority = 'Tier 3';\n  if (score >= 85) {\n    priority = 'Tier 1';\n  } else if (score >= 70) {\n    priority = 'Tier 2';\n  }\n\n  qualifiedLeads.push({\n    json: {\n      lead_id: `LEAD_${Date.now().toString().slice(-6)}_${idx + 1}`,\n      campaign_id: activeCampaignId,\n      domain: contact.domain || (email.split('@')[1] || ''),\n      normalized_email: email,\n      lead_status: 'QUALIFIED',\n      lead_score: score,\n      priority_class: priority,\n      created_at: new Date().toISOString()\n    }\n  });\n});\n\nreturn qualifiedLeads;"
+      },
+      "id": "bf9e8dcd-bd00-4183-a812-30b0e7ad6e6e",
+      "name": "Score & Qualify Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "06_Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "normalized_email",
+              "displayName": "normalized_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_status",
+              "displayName": "lead_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority_class",
+              "displayName": "priority_class",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "64c606d7-0d2a-4fa1-a6dd-6d2286607ec6",
+      "name": "Write 06_Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        912,
+        112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 03_Campaigns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read 03_Campaigns": {
+      "main": [
+        [
+          {
+            "node": "Read 05_Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read 05_Contacts": {
+      "main": [
+        [
+          {
+            "node": "Read Existing 06_Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 06_Leads": {
+      "main": [
+        [
+          {
+            "node": "Score & Qualify Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score & Qualify Leads": {
+      "main": [
+        [
+          {
+            "node": "Write 06_Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "75d08d73-e417-435b-a44b-8b33849dd8a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "BqEMLjvfLraiVT2I",
+  "tags": []
+}

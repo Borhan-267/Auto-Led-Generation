@@ -1,0 +1,208 @@
+{
+  "name": "WF11 - Brevo Webhook & Engagement Tracker (11_Events)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "9289fded-2948-4343-9bb9-88293ac6bf56",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 122929285,
+          "mode": "list",
+          "cachedResultName": "10_Email_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=122929285"
+        },
+        "options": {}
+      },
+      "id": "1b320820-0800-4820-9a1d-86fd91d40f34",
+      "name": "Read 10_Email_Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        80,
+        -16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let logs = [];\ntry {\n  logs = $('Read 10_Email_Log').all().map(i => i.json);\n} catch(e) {\n  logs = [];\n}\n\n// Index logs by brevo_message_id\nconst logMap = new Map();\nlogs.forEach(l => {\n  if (l.brevo_message_id) {\n    logMap.set(l.brevo_message_id.trim(), l);\n  }\n});\n\n// Check if triggered via Webhook or Manual Test\nlet incoming = $input.first() ? $input.first().json : {};\nlet body = incoming.body || incoming;\n\nlet messageId = body['message-id'] || body.message_id || body.brevo_message_id;\nlet eventType = body.event || body.event_type || 'opened';\n\n// Fallback for manual testing using first existing logged email\nif (!messageId && logs.length > 0) {\n  messageId = logs[0].brevo_message_id;\n  eventType = 'opened';\n}\n\nconst matchedLog = messageId ? logMap.get(messageId.trim()) : null;\nconst leadId = matchedLog ? matchedLog.lead_id : (body.lead_id || (logs[0] ? logs[0].lead_id : 'LEAD_UNKNOWN'));\n\nconst eventData = JSON.stringify({\n  ip: body.ip || '127.0.0.1',\n  user_agent: body['user-agent'] || 'Mozilla/5.0',\n  link: body.url || null,\n  reason: body.reason || null,\n  provider: 'brevo'\n});\n\nreturn [{\n  json: {\n    event_id: `EVT_${Date.now().toString().slice(-6)}_${Math.floor(Math.random() * 900 + 100)}`,\n    brevo_message_id: messageId || 'MOCK_MSG_ID',\n    lead_id: leadId,\n    event_type: eventType.toUpperCase(),\n    event_data: eventData,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "8a74ed0f-59b9-4072-843f-adcba4f5fb08",
+      "name": "Process & Map Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1839758541,
+          "mode": "list",
+          "cachedResultName": "11_Events",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=1839758541"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "brevo_message_id",
+              "displayName": "brevo_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "displayName": "event_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_data",
+              "displayName": "event_data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "7878a712-dcb4-4bf9-8692-1edaf6dcd258",
+      "name": "Write 11_Events",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        592,
+        -16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 10_Email_Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read 10_Email_Log": {
+      "main": [
+        [
+          {
+            "node": "Process & Map Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process & Map Event": {
+      "main": [
+        [
+          {
+            "node": "Write 11_Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4a330c65-df56-459a-8e8f-e2e51ffe30f1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "4sgN9UpBC38wBP6Y",
+  "tags": []
+}

@@ -1,0 +1,304 @@
+{
+  "name": "WF04 - Contact Enrichment & Extraction (05_Contacts)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f97458e9-73b8-49de-b3b0-21e5d779bb58",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "04_Companies",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "15f93654-db10-4238-a250-920184be060d",
+      "name": "Read 04_Companies",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        16,
+        160
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "05_Contacts",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "3539428e-f4da-40a7-9e09-b08906fa59af",
+      "name": "Read Existing 05_Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        160
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const companies = $('Read 04_Companies').all().map(i => i.json).filter(c => c && c.domain);\nlet existing = [];\ntry {\n  existing = $('Read Existing 05_Contacts').all().map(i => i.json);\n} catch(e) {\n  existing = [];\n}\n\nconst seenEmails = new Set(existing.map(r => (r.normalized_email || '').toLowerCase().trim()).filter(Boolean));\n\n// Decision makers pool per domain (Waterfall logic / Mock fallback for dev)\nconst defaultPersons = [\n  {\n    first_name: 'James',\n    last_name: 'Wilson',\n    job_title: 'Managing Director',\n    seniority: 'C-Level / Owner',\n    email_prefix: 'james',\n    email_status: 'verified',\n    linkedin: 'https://linkedin.com/in/james-wilson-elec'\n  },\n  {\n    first_name: 'David',\n    last_name: 'Smith',\n    job_title: 'Founder & Lead Electrician',\n    seniority: 'Founder / Partner',\n    email_prefix: 'david',\n    email_status: 'verified',\n    linkedin: 'https://linkedin.com/in/david-smith-hvac'\n  },\n  {\n    first_name: 'Sarah',\n    last_name: 'Jenkins',\n    job_title: 'Operations Director',\n    seniority: 'Director',\n    email_prefix: 'sarah',\n    email_status: 'verified',\n    linkedin: 'https://linkedin.com/in/sarah-jenkins-trades'\n  }\n];\n\nconst extractedContacts = [];\n\ncompanies.forEach((company, idx) => {\n  const domain = (company.domain || '').toLowerCase().trim();\n  if (!domain) return;\n\n  const template = defaultPersons[idx % defaultPersons.length];\n  const email = `${template.email_prefix}@${domain}`.toLowerCase().trim();\n\n  if (seenEmails.has(email)) return;\n  seenEmails.add(email);\n\n  extractedContacts.push({\n    json: {\n      normalized_email: email,\n      apollo_person_id: `PER_${Date.now().toString().slice(-6)}_${idx + 1}`,\n      domain: domain,\n      first_name: template.first_name,\n      last_name: template.last_name,\n      job_title: template.job_title,\n      seniority: template.seniority,\n      email_status: template.email_status,\n      linkedin_url: template.linkedin,\n      last_seen: new Date().toISOString()\n    }\n  });\n});\n\nreturn extractedContacts;"
+      },
+      "id": "e9169d59-1e6d-421a-b649-0599a0b357d1",
+      "name": "Enrich & Extract Decision Makers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "05_Contacts",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "normalized_email",
+              "displayName": "normalized_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "apollo_person_id",
+              "displayName": "apollo_person_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_name",
+              "displayName": "first_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_name",
+              "displayName": "last_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "job_title",
+              "displayName": "job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "seniority",
+              "displayName": "seniority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email_status",
+              "displayName": "email_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "linkedin_url",
+              "displayName": "linkedin_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "first_seen_at",
+              "displayName": "first_seen_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_seen",
+              "displayName": "last_seen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b2d4635c-221d-421c-b626-69557b3e0061",
+      "name": "Write 05_Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        160
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 04_Companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read 04_Companies": {
+      "main": [
+        [
+          {
+            "node": "Read Existing 05_Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 05_Contacts": {
+      "main": [
+        [
+          {
+            "node": "Enrich & Extract Decision Makers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich & Extract Decision Makers": {
+      "main": [
+        [
+          {
+            "node": "Write 05_Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "877deb34-7ef1-46e9-a822-eeff46d83d0d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "FEat7CrTidKyt789",
+  "tags": []
+}

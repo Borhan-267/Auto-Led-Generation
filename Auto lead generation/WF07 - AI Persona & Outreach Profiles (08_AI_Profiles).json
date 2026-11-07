@@ -1,0 +1,369 @@
+{
+  "name": "WF07 - AI Persona & Outreach Profiles (08_AI_Profiles)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "e1735b78-d84d-4ea9-a72e-42fe7ba1b182",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1873020106,
+          "mode": "list",
+          "cachedResultName": "06_Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=1873020106"
+        },
+        "options": {}
+      },
+      "id": "47d580d1-e23b-4938-b1cb-f2765e69323d",
+      "name": "Read 06_Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -80,
+        160
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 593076687,
+          "mode": "list",
+          "cachedResultName": "05_Contacts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=593076687"
+        },
+        "options": {}
+      },
+      "id": "4ee7f0b8-04bd-4f13-b1ff-abebe10b4885",
+      "name": "Read 05_Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -80,
+        320
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 230342580,
+          "mode": "list",
+          "cachedResultName": "07_Evidence",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=230342580"
+        },
+        "options": {}
+      },
+      "id": "b622a62a-bcf9-45de-b0de-e6e423a566f2",
+      "name": "Read 07_Evidence",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -80,
+        480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1655002329,
+          "mode": "list",
+          "cachedResultName": "08_AI_Profiles",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=1655002329"
+        },
+        "options": {}
+      },
+      "id": "c5d1d9f8-b358-4094-9d8f-431fcd834ee5",
+      "name": "Read Existing 08_AI_Profiles",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -80,
+        640
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let leads = [];\ntry {\n  leads = $('Read 06_Leads').all().map(i => i.json).filter(l => l && l.lead_id);\n} catch(e) {\n  leads = [];\n}\n\nlet contacts = [];\ntry {\n  contacts = $('Read 05_Contacts').all().map(i => i.json);\n} catch(e) {\n  contacts = [];\n}\n\nlet evidence = [];\ntry {\n  evidence = $('Read 07_Evidence').all().map(i => i.json);\n} catch(e) {\n  evidence = [];\n}\n\nlet existingProfiles = [];\ntry {\n  existingProfiles = $('Read Existing 08_AI_Profiles').all().map(i => i.json);\n} catch(e) {\n  existingProfiles = [];\n}\n\nconst contactMap = new Map();\ncontacts.forEach(c => {\n  if (c.domain) contactMap.set((c.domain || '').toLowerCase().trim(), c);\n});\n\nconst evidenceMap = new Map();\nevidence.forEach(e => {\n  if (e.lead_id) evidenceMap.set((e.lead_id || '').trim(), e);\n});\n\nconst seenLeads = new Set(\n  existingProfiles\n    .map(p => (p.lead_id || '').trim())\n    .filter(Boolean)\n);\n\nconst profiles = [];\n\nleads.forEach((lead, idx) => {\n  const leadId = (lead.lead_id || '').trim();\n  const domain = (lead.domain || '').toLowerCase().trim();\n  if (!leadId || seenLeads.has(leadId)) return;\n  seenLeads.add(leadId);\n\n  const contact = contactMap.get(domain) || {};\n  const ev = evidenceMap.get(leadId) || {};\n\n  const fullName = `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || 'Business Leader';\n  const role = contact.job_title || 'Executive';\n\n  const companySummary = `${domain} operates actively in commercial services with direct operational leadership headed by ${fullName} (${role}).`;\n  const painPoints = `High administrative overhead managing client inquiries and dispatch schedules manually during peak service hours.`;\n  const primaryOpportunity = `Implement automated client capture and inbound triage to boost operational efficiency and close response latency.`;\n  const recommendedAngle = `Focus on operational scale and automated customer onboarding without adding overhead staff.`;\n  const fitScore = lead.lead_score || 88;\n  const intentScore = 85;\n  const hook = `Noticed the expanding service coverage across London at ${domain}—wanted to share how similar operators are automating inbound client triage.`;\n\n  const rawJson = JSON.stringify({\n    target: fullName,\n    role: role,\n    domain: domain,\n    key_driver: 'Automated Operations',\n    outreach_strategy: recommendedAngle,\n    generated_at: new Date().toISOString()\n  });\n\n  profiles.push({\n    json: {\n      profile_id: `PRF_${Date.now().toString().slice(-6)}_${idx + 1}`,\n      lead_id: leadId,\n      company_summary: companySummary,\n      observed_pain_points: painPoints,\n      primary_opportunity: primaryOpportunity,\n      recommended_angle: recommendedAngle,\n      fit_score: fitScore,\n      intent_score: intentScore,\n      personalization_hook: hook,\n      raw_claude_json: rawJson\n    }\n  });\n});\n\nreturn profiles;"
+      },
+      "id": "57716353-ced8-455b-9c1d-6ad7754b8327",
+      "name": "Synthesize AI Profiles",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1655002329,
+          "mode": "list",
+          "cachedResultName": "08_AI_Profiles",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=1655002329"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "profile_id",
+              "displayName": "profile_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_summary",
+              "displayName": "company_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "observed_pain_points",
+              "displayName": "observed_pain_points",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "primary_opportunity",
+              "displayName": "primary_opportunity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_or_excel_service",
+              "displayName": "recommended_or_excel_service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fit_score",
+              "displayName": "fit_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent_score",
+              "displayName": "intent_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "personalization_hook",
+              "displayName": "personalization_hook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "raw_claude_json",
+              "displayName": "raw_claude_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_angle",
+              "displayName": "recommended_angle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6c4e0951-ba74-40cf-8c20-2b2dd9c2854d",
+      "name": "Write 08_AI_Profiles",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        432,
+        352
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 06_Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 05_Contacts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 07_Evidence",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Existing 08_AI_Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 08_AI_Profiles": {
+      "main": [
+        [
+          {
+            "node": "Synthesize AI Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthesize AI Profiles": {
+      "main": [
+        [
+          {
+            "node": "Write 08_AI_Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "800d0bf3-c64c-414f-8822-b8871b8f3690",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "Lo9mEKk5p8EepENq",
+  "tags": []
+}

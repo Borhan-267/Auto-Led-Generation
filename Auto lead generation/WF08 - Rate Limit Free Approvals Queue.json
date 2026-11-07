@@ -1,0 +1,386 @@
+{
+  "name": "WF08 - Rate Limit Free Approvals Queue",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "c3e84812-6569-4b15-a9e1-f27c02ce9775",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        368,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "06_Leads",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "c03ac5d2-efc5-4e1b-b329-6b8e3226d2c9",
+      "name": "Read 06_Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        336
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "04_Companies",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "2701c3f4-491b-45e9-8516-a69562d646cf",
+      "name": "Read 04_Companies",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        496
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "05_Contacts",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "4fa9b816-ee2e-4621-ac37-35900a1ecd99",
+      "name": "Read 05_Contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        656
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "08_AI_Profiles",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "8bac2751-40bc-4d61-92a3-fc17a83e9daf",
+      "name": "Read 08_AI_Profiles",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        816
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "09_Approval",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "74b7d81f-80dd-4266-836f-5fbaa95b0e75",
+      "name": "Read Existing 09_Approvals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        608,
+        976
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let leads = [];\ntry {\n  leads = $('Read 06_Leads').all().map(i => i.json).filter(l => l && l.lead_id);\n} catch(e) { leads = []; }\n\nlet companies = [];\ntry {\n  companies = $('Read 04_Companies').all().map(i => i.json);\n} catch(e) { companies = []; }\n\nlet contacts = [];\ntry {\n  contacts = $('Read 05_Contacts').all().map(i => i.json);\n} catch(e) { contacts = []; }\n\nlet profiles = [];\ntry {\n  profiles = $('Read 08_AI_Profiles').all().map(i => i.json);\n} catch(e) { profiles = []; }\n\nlet existingApprovals = [];\ntry {\n  existingApprovals = $('Read Existing 09_Approvals').all().map(i => i.json);\n} catch(e) { existingApprovals = []; }\n\nconst compMap = new Map();\ncompanies.forEach(c => {\n  if (c.domain) compMap.set((c.domain || '').toLowerCase().trim(), c);\n});\n\nconst contactMap = new Map();\ncontacts.forEach(ct => {\n  if (ct.normalized_email) contactMap.set((ct.normalized_email || '').toLowerCase().trim(), ct);\n});\n\nconst profileMap = new Map();\nprofiles.forEach(p => {\n  if (p.lead_id) profileMap.set((p.lead_id || '').trim(), p);\n});\n\nconst seenLeads = new Set(\n  existingApprovals\n    .map(a => (a.lead_id || '').trim())\n    .filter(Boolean)\n);\n\nconst approvalQueue = [];\n\nleads.forEach((lead) => {\n  const leadId = (lead.lead_id || '').trim();\n  const email = (lead.normalized_email || '').toLowerCase().trim();\n  const domain = (lead.domain || '').toLowerCase().trim();\n  if (!leadId || seenLeads.has(leadId)) return;\n  seenLeads.add(leadId);\n\n  const company = compMap.get(domain) || {};\n  const contact = contactMap.get(email) || {};\n  const profile = profileMap.get(leadId) || {};\n\n  const compName = company.company_name || domain;\n  const firstName = contact.first_name || 'there';\n  const contactFullName = `${contact.first_name || ''} ${contact.last_name || ''}`.trim() || firstName;\n  const hook = profile.personalization_hook || `Noticed ${compName}'s growing presence in commercial trade services.`;\n\n  const subject = `Question regarding operational scaling at ${compName}`;\n  const body = `Hi ${firstName},\\n\\n${hook}\\n\\nWe help commercial trade operators automate inbound customer triage, dispatch qualification, and appointment bookings without increasing administrative staff.\\n\\nWould you be open to a 10-minute chat next Tuesday to see how this fits into ${compName}'s current workflow?\\n\\nBest regards,\\nGrowth Team`;\n\n  approvalQueue.push({\n    json: {\n      lead_id: leadId,\n      campaign_id: lead.campaign_id || 'CMP_ACTIVE',\n      company_name: compName,\n      contact_name: contactFullName,\n      email: email,\n      email_subject: subject,\n      email_body: body,\n      approval_status: 'PENDING',\n      reviewed_by: '',\n      reviewed_at: ''\n    }\n  });\n});\n\nreturn approvalQueue;"
+      },
+      "id": "e97114a7-ea85-48ac-a634-36afa0032540",
+      "name": "Craft Outreach & Format Queue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "09_Approval",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_name",
+              "displayName": "contact_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_subject",
+              "displayName": "email_subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_body",
+              "displayName": "email_body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "displayName": "approval_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_by",
+              "displayName": "reviewed_by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewed_at",
+              "displayName": "reviewed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1fa284f4-bb26-4162-9d58-fd9f906070f5",
+      "name": "Write 09_Approvals",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1136,
+        544
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 06_Leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 04_Companies",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 05_Contacts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 08_AI_Profiles",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Existing 09_Approvals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 09_Approvals": {
+      "main": [
+        [
+          {
+            "node": "Craft Outreach & Format Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Craft Outreach & Format Queue": {
+      "main": [
+        [
+          {
+            "node": "Write 09_Approvals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d7ea89ec-3f5c-44a6-b7e6-79d969899a63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "N0LFPwqleTuvomep",
+  "tags": []
+}

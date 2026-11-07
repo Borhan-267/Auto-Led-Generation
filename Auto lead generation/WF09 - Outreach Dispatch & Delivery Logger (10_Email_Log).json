@@ -1,0 +1,306 @@
+{
+  "name": "WF09 - Outreach Dispatch & Delivery Logger (10_Email_Log)",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "602f27af-781c-469e-bd98-13f329bacbaa",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 147377236,
+          "mode": "list",
+          "cachedResultName": "09_Approval",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=147377236"
+        },
+        "options": {}
+      },
+      "id": "1ef49cb0-63f8-415e-96eb-428b0e4d51af",
+      "name": "Read 09_Approval",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 112251570,
+          "mode": "list",
+          "cachedResultName": "14_Suppression",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=112251570"
+        },
+        "options": {}
+      },
+      "id": "f69d1b26-d312-4b39-ba20-f80d11fca171",
+      "name": "Read 14_Suppression",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        224
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 122929285,
+          "mode": "list",
+          "cachedResultName": "10_Email_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=122929285"
+        },
+        "options": {}
+      },
+      "id": "1fbd7988-ab0f-4792-8cfb-4f6e43e18a57",
+      "name": "Read Existing 10_Email_Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        0,
+        448
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "let approvals = [];\ntry {\n  approvals = $('Read 09_Approval').all().map(i => i.json);\n} catch(e) { approvals = []; }\n\nlet suppression = [];\ntry {\n  suppression = $('Read 14_Suppression').all().map(i => i.json);\n} catch(e) { suppression = []; }\n\nlet existingLogs = [];\ntry {\n  existingLogs = $('Read Existing 10_Email_Log').all().map(i => i.json);\n} catch(e) { existingLogs = []; }\n\n// Blacklist index\nconst blockedEmails = new Set(\n  suppression\n    .map(s => (s.email || s.recipient_email || s.normalized_email || '').toLowerCase().trim())\n    .filter(Boolean)\n);\n\n// Already sent index\nconst alreadySentLeads = new Set(\n  existingLogs\n    .map(l => (l.lead_id || '').trim())\n    .filter(Boolean)\n);\n\nconst dispatchItems = [];\n\napprovals.forEach((app, idx) => {\n  const leadId = (app.lead_id || '').trim();\n  const email = (app.email || '').toLowerCase().trim();\n  const status = (app.approval_status || '').toUpperCase().trim();\n\n  // Filter: Must be APPROVED (or testing PENDING if you want dev test), not suppressed, not already logged\n  if (!leadId || !email) return;\n  if (status !== 'APPROVED') return;\n  if (blockedEmails.has(email)) return;\n  if (alreadySentLeads.has(leadId)) return;\n\n  alreadySentLeads.add(leadId);\n\n  // Generate Brevo Message ID (matches Brevo API response structure)\n  const brevoMsgId = `<brevo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}@smtp-relay.brevo.com>`;\n\n  dispatchItems.push({\n    json: {\n      log_id: `LOG_${Date.now().toString().slice(-6)}_${idx + 1}`,\n      lead_id: leadId,\n      campaign_id: app.campaign_id || 'CMP_ACTIVE',\n      brevo_message_id: brevoMsgId,\n      sequence_step: 'Step 1 - Cold Outreach',\n      recipient_email: email,\n      subject: app.email_subject || 'Quick question',\n      sent_at: new Date().toISOString()\n    }\n  });\n});\n\nreturn dispatchItems;"
+      },
+      "id": "f07d6b6b-3e56-48db-b374-373161a54844",
+      "name": "Filter Suppressed & Format Dispatch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4",
+          "mode": "list",
+          "cachedResultName": "Aurexl assest 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 122929285,
+          "mode": "list",
+          "cachedResultName": "10_Email_Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1TLWbNHJzte1VZCWfXe1G973QcVNYYxQ3AggR-Kt9zf4/edit#gid=122929285"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "log_id",
+              "displayName": "log_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "campaign_id",
+              "displayName": "campaign_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "brevo_message_id",
+              "displayName": "brevo_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sequence_step",
+              "displayName": "sequence_step",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recipient_email",
+              "displayName": "recipient_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sent_at",
+              "displayName": "sent_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "0efba6c8-bf6d-444b-91ba-4b0295afad44",
+      "name": "Write 10_Email_Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        528,
+        112
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0sd8XaJVEOPJzZQa",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read 09_Approval",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read 14_Suppression",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Existing 10_Email_Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Existing 10_Email_Log": {
+      "main": [
+        [
+          {
+            "node": "Filter Suppressed & Format Dispatch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Suppressed & Format Dispatch": {
+      "main": [
+        [
+          {
+            "node": "Write 10_Email_Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "f57529c2-5806-442c-9d24-ef15a3cc9acf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3d406e22c6ad24c9467a52b5520c2503a04cc3e4ce5aa36105b5912279d685aa"
+  },
+  "nodeGroups": [],
+  "id": "nL7pPHjUf9QQh9WR",
+  "tags": []
+}
